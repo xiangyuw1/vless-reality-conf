@@ -1,0 +1,55 @@
+{
+  "inbounds": [
+    {
+      "listen": "127.0.0.1",
+      "port": 7443,
+      "protocol": "vless",
+      "settings": {
+        "clients": [
+          {
+            "id": "[uuid]",
+            "flow": "xtls-rprx-vision"
+          }
+        ],
+        "decryption": "none"
+      },
+      "streamSettings": {
+        "network": "tcp",
+        "security": "reality",
+        "sockopt": {
+          "acceptProxyProtocol": true
+        },
+        "realitySettings": {
+          "show": false,
+          "dest": "www.example.com:443",
+          "xver": 0,
+          "serverNames": [
+            "www.example.com"
+          ],
+          "privateKey": "[private_key]",
+          "shortIds": [
+            "[short_id]"
+          ]
+        }
+      },
+      "sniffing": {
+        "enabled": true,
+        "destOverride": [
+          "http",
+          "tls",
+          "quic"
+        ]
+      }
+    }
+  ],
+  "outbounds": [
+    {
+      "protocol": "freedom",
+      "tag": "direct"
+    },
+    {
+      "protocol": "blackhole",
+      "tag": "blocked"
+    }
+  ]
+}
