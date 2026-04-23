@@ -1,6 +1,6 @@
 # VLESS + Reality 模板配置说明
 
-这是一个用于参考和自建的 VLESS + Reality 配置模板。当前仓库里的 `config.json` 只保留了占位符，适合直接发到 GitHub 作为模板；真正部署时，需要把 UUID、Reality 私钥、shortId，以及 `dest` / `serverNames` 按自己的环境替换掉。
+这是一个用于参考和自建的 VLESS + Reality 配置模板。当前仓库里的 `config.template.json` 只保留了占位符,真正部署时，需要把 UUID、Reality 私钥、shortId，以及 `dest` / `serverNames` 按自己的环境替换掉。
 
 ## 1. 部署前准备
 
@@ -9,6 +9,7 @@
 - 一台可以公网访问的服务器
 - 一个可用域名，或者一个能作为 `dest` 的真实 TLS 站点
 - 已安装的 `xray-core`
+- Xray 安装脚本（官方社区常用）：https://github.com/XTLS/Xray-install
 - 已安装的 `nginx`，并确认编译/启用了 `stream` 模块
 - 放行 443 端口，必要时也放行 80 端口用于证书或跳转
 
@@ -101,7 +102,35 @@ stream {
 
 如果你的 Nginx 版本或编译选项不支持 `stream` / `proxy_protocol`，就不要硬套这一段，改成普通 TCP 转发或关闭 `acceptProxyProtocol`，两边必须一致。
 
-## 7. 启动顺序
+## 7. 不使用 Nginx 转发时
+
+如果你不打算使用 Nginx 前置转发，而是让 Xray 直接对外监听 `443`，可以按下面最小改动处理：
+
+- 把入站 `listen` 从 `127.0.0.1` 改成 `0.0.0.0`（或你的公网网卡地址）
+- 把入站 `port` 从 `7443` 改成 `443`
+- 关闭 `streamSettings.sockopt.acceptProxyProtocol`（改为 `false`，或直接删除 `sockopt`）
+
+示例：
+
+```json
+"listen": "0.0.0.0",
+"port": 443,
+"streamSettings": {
+    "sockopt": {
+        "acceptProxyProtocol": false
+    }
+}
+```
+
+注意：
+
+- 如果服务器上已有其他服务占用 `443`（如 Nginx/Caddy），需要先停用或换端口
+- 防火墙与安全组要放行 `443/TCP`
+- 客户端连接参数保持不变，仍然使用 `flow: xtls-rprx-vision` 与对应的 `serverName/shortId/publicKey`
+
+## 8. 启动顺序
+
+如果你使用的是“Xray 直接监听 443”的方案，可以跳过下面顺序里的 Nginx 相关步骤。
 
 推荐顺序如下：
 
@@ -115,7 +144,7 @@ stream {
 - `/etc/nginx/nginx.conf`
 - `/etc/xray/config.json`
 
-## 8. 客户端需要的参数
+## 9. 客户端需要的参数
 
 客户端连接时通常需要：
 
