@@ -18,7 +18,7 @@
 客户端 `id` 用 UUID。可以在 Linux 上用：
 
 ```bash
-uuidgen
+xray uuid
 ```
 
 如果你在 Windows PowerShell 里生成：
@@ -80,16 +80,19 @@ openssl rand -hex 8
 
 ```nginx
 stream {
-    upstream xray_reality {
-        server 127.0.0.1:7443;
+    map $ssl_preread_server_name $backend_name {
+        hostnames; # 必须添加这一行，才能解析 your domain
+
+        .yourdomain.com            127.0.0.1:4443; 
+        default                  127.0.0.1:7443;
     }
 
     server {
         listen 443;
-        proxy_connect_timeout 10s;
-        proxy_timeout 1h;
-        proxy_pass xray_reality;
-        proxy_protocol on;
+        listen [::]:443;
+        ssl_preread on;
+        proxy_pass $backend_name;
+        proxy_protocol on; # 注意：后端 4443 端口的 Nginx 也必须开启 proxy_protocol 接收
     }
 }
 ```
