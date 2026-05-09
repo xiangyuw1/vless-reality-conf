@@ -103,6 +103,29 @@ stream {
 - `proxy_protocol on` 用于把真实客户端地址传给后端
 - 由于模板里已经设置了 `"acceptProxyProtocol": true`，前后端要保持一致
 
+### Nginx后端设置
+
+```nginx
+server {
+    # 1. 监听指令
+    listen 4443 ssl proxy_protocol;
+    listen [::]:4443 ssl proxy_protocol;
+
+    server_name 业务1.你的域名.com;
+
+    # 2. 独立开启 HTTP/2 (1.25+ 新格式)
+    http2 on;
+
+    # 3. 信任本地转发，找回真实访客 IP (保持不变)
+    set_real_ip_from 127.0.0.1;
+    real_ip_header proxy_protocol;
+
+    # ... 你的证书配置和其他业务路由逻辑
+    ssl_certificate /path/to/your/fullchain.cer;
+    ssl_certificate_key /path/to/your/private.key;
+}
+```
+
 如果你的 Nginx 版本或编译选项不支持 `stream` / `proxy_protocol`，就不要硬套这一段，改成普通 TCP 转发或关闭 `acceptProxyProtocol`，两边必须一致。
 
 ## 7. 不使用 Nginx 转发时
@@ -145,7 +168,7 @@ stream {
 常见路径示例：
 
 - `/etc/nginx/nginx.conf`
-- `/etc/xray/config.json`
+- `/usr/local/etc/xray/config.json`
 
 ## 9. 客户端需要的参数
 
