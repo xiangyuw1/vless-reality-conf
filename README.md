@@ -217,9 +217,9 @@ server {
       
        *运行后，终端会提示你是否同意服务条款（Type `Yes`），随后会在当前目录下生成一个 `wgcf-account.toml` 文件，里面保存了你的账户密钥信息。*
       
-      3. 生成 WireGuard 配置文件
+   3. **生成 WireGuard 配置文件**
          
-         账户注册成功后，直接运行生成命令：
+      账户注册成功后，直接运行生成命令：
       
       ```bash
       wgcf generate
