@@ -228,7 +228,7 @@ server {
        *运行成功后，当前目录下会生成你需要的 **`wgcf-profile.conf`** 文件。*
       
       ```conf
-              [Interface]
+      [Interface]
       PrivateKey = yGxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx1E=  <-- 提取填入 Xray 的 secretKey
       Address = 172.16.0.2/32                                 <-- Xray address 数组的第一个值
       Address = 2606:4700:110:xxxx:xxxx:xxxx:xxxx:xxxx/128    <-- 提取填入 Xray address 数组的第二个值
