@@ -181,3 +181,83 @@ server {
 - `shortId`：与你的服务端一致
 - `serverName`：与你服务端配置一致
 - `flow`：`xtls-rprx-vision`
+
+## 10. 网站分流+warp解锁流媒体和AI
+
+可以参照本项目下的`config.with-warp-routing.json`配置文件模板
+
+**配置关键点说明**
+
+1. **生成wgcf配置文件**
+   
+   1. **下载wgcf**
+      
+      首先，你需要从 wgcf 的官方 GitHub Releases 页面下载对应你系统架构的版本。
+      
+      对于常见的 Linux VPS（如 x86_64 架构）：
+      
+      ```bash
+      # 下载预编译好的文件
+      wget -O wgcf https://github.com/ViRb3/wgcf/releases/download/v2.2.30/wgcf_2.2.30_linux_amd64
+      
+      # 赋予执行权限
+      chmod +x wgcf
+      
+      # 移动到系统目录方便全局调用（可选）
+      mv wgcf /usr/local/bin/wgcf
+      ```
+   
+   2. **注册 WARP 账户**
+      
+      在终端中运行以下命令，向 Cloudflare 申请分配一个免费的 WARP 账户：
+      
+      ```bash
+      wgcf register
+      ```
+      
+       *运行后，终端会提示你是否同意服务条款（Type `Yes`），随后会在当前目录下生成一个 `wgcf-account.toml` 文件，里面保存了你的账户密钥信息。*
+      
+      3. 生成 WireGuard 配置文件
+         
+         账户注册成功后，直接运行生成命令：
+      
+      ```bash
+      wgcf generate
+      ```
+      
+       *运行成功后，当前目录下会生成你需要的 **`wgcf-profile.conf`** 文件。*
+      
+      ```conf
+              [Interface]
+      PrivateKey = yGxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx1E=  <-- 提取填入 Xray 的 secretKey
+      Address = 172.16.0.2/32                                 <-- Xray address 数组的第一个值
+      Address = 2606:4700:110:xxxx:xxxx:xxxx:xxxx:xxxx/128    <-- 提取填入 Xray address 数组的第二个值
+      DNS = 1.1.1.1
+      MTU = 1280
+      
+      [Peer]
+      PublicKey = bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo=
+      AllowedIPs = 0.0.0.0/0
+      AllowedIPs = ::/0
+      Endpoint = engage.cloudflareclient.com:2408
+      ```
+      
+       你只需要把 `[Interface]` 下的 **PrivateKey** 和两个 **Address**（一个 IPv4，一个 IPv6）复制出来，按照上一问我提供的 JSON 格式填入 Xray 的 `wireguard` outbounds 即可。剩下的 `[Peer]` 信息在 Cloudflare WARP 中是全球固定的，不用修改。
+
+2. **WARP (WireGuard) 出站配置映射**
+   
+   你需要打开 `wgcf` 生成的 `wgcf-profile.conf` 文件，提取以下信息填入配置：
+   
+   - `"secretKey"`: 对应 `[Interface]` 下的 `PrivateKey`。
+   
+   - `"address"`: 对应 `[Interface]` 下的 `Address`。保留 `172.16.0.2/32`，并将 IPv6 地址一并填入。
+   
+   - `"publicKey"` 和 `"endpoint"`: Cloudflare WARP 的服务端公钥和接入点通常是固定的（已在代码中填好），直接保持原样即可。
+     
+     *如果服务器没有ipv6网络，`endpoint`可能需要填`162.159.192.1:2408`，而不是域名*
+   
+   - `"mtu": 1280`: WARP 的标准 MTU 值，不要修改。
+
+3. **路由兜底逻辑**
+   
+   Xray 路由采用**自上而下匹配**，且默认命中失败的流量会走 `outbounds` 数组里的第一个出口。在这个配置中，未命中 `warp` 和 `blocked` 规则的普通流量，会自动落在第一个出站 `direct`（即服务器真实 IP 直连）。同时加入了一条屏蔽 `geoip:private` 的规则，防止服务器被利用作为内网扫描跳板。

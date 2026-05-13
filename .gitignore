@@ -34,3 +34,4 @@ venv/
 # Misc
 *.pid
 *.seed
+config.json
