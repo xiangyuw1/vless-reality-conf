@@ -99,6 +99,27 @@
           "geosite:hulu",
           "geosite:spotify",
           "geosite:tiktok"
+
+          // === 常见金融/银行/支付网站 ===
+          "domain:wise.com",
+          "domain:transferwise.com",
+          "domain:bankofamerica.com",
+          "domain:bofa.com",
+          "domain:interactivebrokers.com",
+          "domain:interactivebrokers.co.uk",
+          "domain:ibkr.com",
+          "domain:paypal.com",
+          "domain:paypalobjects.com",
+          "domain:stripe.com",
+          "domain:payoneer.com",
+          "domain:chase.com",
+          "domain:citi.com",
+          "domain:citibank.com",
+          "domain:capitalone.com",
+          "domain:schwab.com",
+          "domain:fidelity.com",
+          "domain:tdameritrade.com",
+          "domain:plaid.com"
         ]
       },
       {
