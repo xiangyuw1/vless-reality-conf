@@ -81,15 +81,6 @@
           // === AI 平台 ===
           "geosite:openai",
           "geosite:anthropic",
-          "domain:claude.ai",
-          "domain:anthropic.com",
-          // 精准路由 Gemini，不影响 Google 搜索与 YouTube
-          "domain:gemini.google.com",
-          "domain:bard.google.com",
-          "domain:generativelanguage.googleapis.com",
-          "domain:ai.google.dev",
-          "domain:aistudio.google.com",
-          "domain:alkalimakersuite-pa.clients6.google.com",
 
           // === 常见流媒体 ===
           "geosite:netflix",
@@ -98,7 +89,6 @@
           "geosite:hbo",
           "geosite:hulu",
           "geosite:spotify",
-          "geosite:tiktok"
 
           // === 常见金融/银行/支付网站 ===
           "domain:wise.com",
